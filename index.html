@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Conhecimentos Básicos para Gestão do PDDE</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- canvas-confetti for the celebration effect -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Custom font from Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        /* Custom styles for answer buttons to provide feedback */
+        .correct {
+            background-color: #22c55e !important; /* Green-500 */
+            color: white !important;
+            border-color: #16a34a !important; /* Green-600 */
+            transform: scale(1.02);
+        }
+        .incorrect {
+            background-color: #ef4444 !important; /* Red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* Red-600 */
+        }
+        .disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .explanation-box {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti-canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none z-50"></canvas>
+
+    <!-- Quiz Container -->
+    <div id="quiz-container" class="bg-white w-full max-w-3xl p-6 sm:p-8 rounded-2xl shadow-2xl transition-all duration-300">
+        <div class="text-center mb-4">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800">🎯 Quiz de Boas-Vindas 🎯</h1>
+            <p class="text-sm text-gray-500 mt-2">Curso: Conhecimentos Básicos para Gestão do PDDE</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
+            <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <!-- Question Area -->
+        <div id="question-area">
+            <div class="flex justify-between items-center mb-4">
+                 <span id="question-counter" class="text-sm font-semibold text-gray-600"></span>
+            </div>
+            <h2 class="text-lg font-bold text-gray-800 mb-6" id="question-text">Carregando pergunta...</h2>
+            <div id="options-container" class="grid grid-cols-1 gap-4">
+                <!-- Answer options will be dynamically inserted here -->
+            </div>
+            <!-- Explanation Area -->
+            <div id="explanation-container" class="mt-6"></div>
+        </div>
+    </div>
+
+    <!-- Results Container (Initially Hidden) -->
+    <div id="results-container" class="hidden bg-white w-full max-w-2xl p-8 text-center rounded-2xl shadow-2xl">
+        <h2 class="text-3xl font-bold text-gray-800 mb-4">Atividade Concluída!</h2>
+        <p class="text-lg text-gray-600 mb-6" id="score-text">Sua pontuação final é:</p>
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-5xl font-bold rounded-full w-36 h-36 flex items-center justify-center mx-auto mb-8 shadow-lg" id="final-score">
+            10/10
+        </div>
+        <p class="text-gray-500">Parabéns por finalizar o quiz! Continue seus estudos.</p>
+    </div>
+
+    <script>
+        // --- Quiz Data ---
+        const quizData = [
+            {
+                question: "Qual o principal objetivo do curso Conhecimentos Básicos para Gestão Administrativa e Financeira dos Recursos do PDDE?",
+                options: [
+                    "Aprofundar os processos de gestão de recursos subsidiados pelo Fundo Nacional de Desenvolvimento da Educação (FNDE)",
+                    "Proporcionar lazer aos gestores escolares",
+                    "Ensinar a criação de projetos pedagógicos",
+                    "Oferecer cursos de aperfeiçoamento em diversas áreas educacionais"
+                ],
+                correct: 0,
+                explanation: "O curso foca em capacitar os gestores para a correta aplicação dos recursos do FNDE, garantindo a eficiência e a transparência."
+            },
+            {
+                question: "Por que o porquinho \"Dindin\" foi escolhido como mascote dos cursos do PDDE?",
+                options: [
+                    "Por ser um animal fofo e divertido",
+                    "Por representar, culturalmente em nosso país, a área de finanças demonstrando ao gestor a importância da economia diária e gestão financeira.",
+                    "Por ser um símbolo de sorte",
+                    "Por ser fácil de desenhar"
+                ],
+                correct: 1,
+                explanation: "O porquinho-cofre é um símbolo universal de economia e finanças, alinhado ao objetivo do curso de promover a boa gestão financeira."
+            },
+            {
+                question: "Qual o foco principal da ementa do curso \"Conhecimentos Básicos para Gestão Administrativa e Financeira dos Recursos do PDDE\"?",
+                options: [
+                    "Desenvolvimento de projetos pedagógicos inovadores",
+                    "Elaboração de estratégias de captação de recursos privados",
+                    "Manutenção da regularidade funcional administrativa, financeira e contábil da UEx para continuidade do recebimento de recursos do PDDE",
+                    "Organização de eventos escolares"
+                ],
+                correct: 2,
+                explanation: "A regularidade da Unidade Executora (UEx) é crucial para que a escola continue recebendo os recursos do PDDE sem interrupções."
+            },
+            {
+                question: "Um dos objetivos específicos do curso \"Conhecimentos Básicos para Gestão Administrativa e Financeira dos Recursos do PDDE\" é:",
+                options: [
+                    "Ensinar a cozinhar para a merenda escolar",
+                    "Auxiliar em relação às prioridades de itens de custeio e capital a serem adquiridos",
+                    "Realizar auditorias externas nas escolas",
+                    "Desenvolver aplicativos para gestão escolar"
+                ],
+                correct: 1,
+                explanation: "O curso ajuda o gestor a tomar decisões estratégicas sobre como investir os recursos, diferenciando despesas de custeio e investimentos de capital."
+            },
+            {
+                question: "O Programa Dinheiro Direto na Escola (PDDE) foi criado com qual finalidade principal?",
+                options: [
+                    "Centralizar a aplicação dos recursos financeiros nas capitais",
+                    "Substituir completamente o papel do gestor escolar na administração dos recursos",
+                    "Criar um fundo de reserva para emergências nacionais",
+                    "Garantir que as escolas públicas tenham acesso a recursos financeiros para melhoria da infraestrutura, aquisição de materiais e desenvolvimento de projetos pedagógicos"
+                ],
+                correct: 3,
+                explanation: "O PDDE descentraliza os recursos, dando autonomia para as escolas investirem em suas necessidades prioritárias e melhorarem a qualidade do ensino."
+            },
+            {
+                question: "Segundo Chiavenato (2014), quais são as competências fundamentais para uma boa administração, essenciais na gestão dos recursos públicos do PDDE?",
+                options: [
+                    "Planejamento, organização, direção e controle",
+                    "Vendas, marketing, publicidade e inovação",
+                    "Negociação, improvisação, carisma e liderança",
+                    "Comunicação, ética, pontualidade e criatividade"
+                ],
+                correct: 0,
+                explanation: "Esses quatro pilares (PODC) formam o ciclo administrativo clássico, fundamental para qualquer gestor, inclusive na área pública."
+            },
+            {
+                question: "Qual a principal função da Matriz de Eisenhower como ferramenta de gestão de tempo?",
+                options: [
+                    "Gerar relatórios financeiros automáticos",
+                    "Organizar a agenda de reuniões",
+                    "Definir quais tarefas devem ser feitas imediatamente, deixadas para depois, delegadas ou descartadas, baseando-se em importância e urgência",
+                    "Calcular o tempo de execução de cada tarefa"
+                ],
+                correct: 2,
+                explanation: "A matriz ajuda a priorizar tarefas, separando o que é urgente (precisa de atenção imediata) do que é importante (contribui para metas de longo prazo)."
+            },
+            {
+                question: "No contexto do PDDE, qual seria um exemplo de tarefa urgente e importante?",
+                options: [
+                    "O mandato de diretoria vence no dia seguinte e a ata precisa ser paga no cartório hoje com recurso PDDE Básico para regularização",
+                    "Planejamento das aquisições ao longo do ano",
+                    "As bolas para as aulas de Educação Física encontram-se desgastadas",
+                    "Assistir lives e/ou realizar leituras de auto ajuda"
+                ],
+                correct: 0,
+                explanation: "Esta tarefa tem um prazo imediato (urgente) e um impacto direto na regularidade da escola (importante), devendo ser feita sem demora."
+            },
+            {
+                question: "Uma tarefa importante, mas não urgente, no contexto do PDDE, poderia ser:",
+                options: [
+                    "Resolver uma crise financeira imediata",
+                    "O planejamento das aquisições ao longo do ano",
+                    "Atender a uma interrupção inesperada",
+                    "Lidar com uma emergência de infraestrutura"
+                ],
+                correct: 1,
+                explanation: "Planejar é fundamental para o sucesso a longo prazo (importante), mas não exige ação imediata (não urgente). Deve ser agendado."
+            },
+            {
+                question: "Qual a principal característica que diferencia tarefas urgentes de tarefas importantes ao aplicar a Matriz de Eisenhower?",
+                options: [
+                    "O custo da tarefa",
+                    "O tempo necessário para a execução",
+                    "O impacto no longo prazo e o prazo de ação imediata",
+                    "A pessoa responsável pela execução"
+                ],
+                correct: 2,
+                explanation: "Urgência está ligada ao tempo (prazo), enquanto importância está ligada aos resultados e metas (impacto)."
+            }
+        ];
+
+        // --- DOM Element References ---
+        const quizContainer = document.getElementById('quiz-container');
+        const resultsContainer = document.getElementById('results-container');
+        const questionTextEl = document.getElementById('question-text');
+        const questionCounterEl = document.getElementById('question-counter');
+        const optionsContainerEl = document.getElementById('options-container');
+        const explanationContainerEl = document.getElementById('explanation-container');
+        const finalScoreEl = document.getElementById('final-score');
+        const scoreTextEl = document.getElementById('score-text');
+        const progressBarEl = document.getElementById('progress-bar');
+        
+        // --- Quiz State ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // --- Functions ---
+        function loadQuestion() {
+            if (currentQuestionIndex >= quizData.length) {
+                showResults();
+                return;
+            }
+
+            // Update Progress Bar
+            const progressPercentage = ((currentQuestionIndex) / quizData.length) * 100;
+            progressBarEl.style.width = `${progressPercentage}%`;
+
+            const currentQuestion = quizData[currentQuestionIndex];
+            questionTextEl.innerText = currentQuestion.question;
+            questionCounterEl.innerText = `Questão ${currentQuestionIndex + 1} de ${quizData.length}`;
+            optionsContainerEl.innerHTML = '';
+            explanationContainerEl.innerHTML = '';
+
+            const alternatives = ['A', 'B', 'C', 'D'];
+            currentQuestion.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.innerHTML = `<span class="font-bold mr-3">${alternatives[index]})</span> ${option}`;
+                button.classList.add('w-full', 'text-left', 'p-4', 'rounded-lg', 'border-2', 'border-gray-200', 'bg-white', 'hover:bg-gray-100', 'hover:border-blue-300', 'transition-all', 'duration-200', 'shadow-sm');
+                button.dataset.index = index;
+                button.addEventListener('click', selectAnswer);
+                optionsContainerEl.appendChild(button);
+            });
+        }
+
+        function selectAnswer(e) {
+            const selectedButton = e.currentTarget;
+            const selectedAnswerIndex = parseInt(selectedButton.dataset.index);
+            const correctAswerIndex = quizData[currentQuestionIndex].correct;
+
+            if (selectedAnswerIndex === correctAswerIndex) {
+                score++;
+                selectedButton.classList.add('correct');
+            } else {
+                selectedButton.classList.add('incorrect');
+                const correctButton = optionsContainerEl.querySelector(`[data-index='${correctAswerIndex}']`);
+                correctButton.classList.add('correct');
+            }
+
+            // Show explanation
+            const explanation = quizData[currentQuestionIndex].explanation;
+            explanationContainerEl.innerHTML = `
+                <div class="explanation-box p-4 mt-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+                    <h4 class="font-bold text-blue-800">Explicação:</h4>
+                    <p class="text-gray-700">${explanation}</p>
+                </div>
+            `;
+            
+            optionsContainerEl.querySelectorAll('button').forEach(btn => {
+                btn.classList.add('disabled');
+            });
+
+            // Update progress bar for the completed question
+            const progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBarEl.style.width = `${progressPercentage}%`;
+
+            setTimeout(() => {
+                currentQuestionIndex++;
+                loadQuestion();
+            }, 3000); // 3-second delay to read the explanation
+        }
+
+        function showResults() {
+            quizContainer.classList.add('hidden');
+            resultsContainer.classList.remove('hidden');
+            
+            finalScoreEl.innerText = `${score}/${quizData.length}`;
+            scoreTextEl.innerText = `Você acertou ${score} de ${quizData.length} questões.`;
+
+            if (score === quizData.length) {
+                 launchConfetti();
+            }
+        }
+
+        function launchConfetti() {
+            const myCanvas = document.getElementById('confetti-canvas');
+            const myConfetti = confetti.create(myCanvas, { resize: true, useWorker: true });
+            const duration = 5 * 1000;
+            const end = Date.now() + duration;
+
+            (function frame() {
+                myConfetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0 } });
+                myConfetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1 } });
+                if (Date.now() < end) { requestAnimationFrame(frame); }
+            }());
+        }
+
+        // --- Initial Load ---
+        loadQuestion();
+    </script>
+</body>
+</html>
