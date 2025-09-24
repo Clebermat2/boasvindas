@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz: Conhecimentos Básicos para Gestão do PDDE</title>
+    <title>Missão 1: O Planejamento é a Chave!</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- canvas-confetti for the celebration effect -->
@@ -11,11 +11,19 @@
     <style>
         /* Custom font from Google Fonts */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        /* Base styles */
+        html {
+            /* Using a relative unit allows for easy font scaling */
+            font-size: 16px; 
+        }
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: background-color 0.3s ease;
         }
-        /* Custom styles for answer buttons to provide feedback */
+
+        /* Styles for answer buttons to provide feedback */
         .correct {
             background-color: #22c55e !important; /* Green-500 */
             color: white !important;
@@ -38,47 +46,132 @@
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* --- High Contrast Mode Styles --- */
+        body.high-contrast {
+            background: #ffffff; /* Plain white background */
+        }
+        .high-contrast .gradient-bg {
+            background-image: none !important;
+        }
+        .high-contrast .main-text {
+            color: #000000 !important;
+        }
+        .high-contrast .sub-text {
+            color: #212121 !important;
+        }
+        .high-contrast .card-bg {
+            background-color: #ffffff !important;
+            border: 2px solid #000000;
+        }
+        .high-contrast .option-btn {
+            background-color: #f0f0f0 !important;
+            border-color: #000000 !important;
+            color: #000000 !important;
+        }
+        .high-contrast .option-btn:hover {
+             background-color: #dddddd !important;
+        }
+        .high-contrast .correct {
+            background-color: #ffffff !important;
+            outline: 4px solid #000000;
+            color: #000000 !important;
+        }
+        .high-contrast .incorrect {
+            background-color: #e0e0e0 !important;
+            color: #000000 !important;
+            text-decoration: line-through;
+        }
+        .high-contrast .explanation-box {
+            background-color: #f5f5f5 !important;
+            border-color: #000000 !important;
+        }
+        .high-contrast #progress-bar {
+            background-color: #000000 !important;
+        }
+        .high-contrast .progress-track {
+            background-color: #ffffff !important;
+            border: 1px solid #000;
+        }
+        .high-contrast .score-circle {
+            background: #000000 !important;
+            color: #ffffff !important;
+        }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
+<body class="flex items-center justify-center min-h-screen p-4 gradient-bg">
+
+    <!-- Accessibility Controls -->
+    <div class="absolute top-4 right-4 z-50 flex items-center gap-2 bg-white/50 backdrop-blur-sm p-2 rounded-lg">
+        <button id="toggle-contrast-btn" title="Alternar Alto Contraste" class="w-10 h-10 flex items-center justify-center bg-gray-700 text-white rounded-md hover:bg-black transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2"></path><path d="M12 21v2"></path><path d="m4.22 4.22 1.42 1.42"></path><path d="m18.36 18.36 1.42 1.42"></path><path d="M1 12h2"></path><path d="M21 12h2"></path><path d="m4.22 19.78 1.42-1.42"></path><path d="m18.36 5.64 1.42-1.42"></path></svg>
+        </button>
+        <button id="decrease-font-btn" title="Diminuir Fonte" class="w-10 h-10 flex items-center justify-center bg-gray-700 text-white rounded-md hover:bg-black transition-colors font-bold text-lg">A-</button>
+        <button id="increase-font-btn" title="Aumentar Fonte" class="w-10 h-10 flex items-center justify-center bg-gray-700 text-white rounded-md hover:bg-black transition-colors font-bold text-lg">A+</button>
+    </div>
 
     <!-- Confetti Canvas -->
     <canvas id="confetti-canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none z-50"></canvas>
 
-    <!-- Quiz Container -->
-    <div id="quiz-container" class="bg-white w-full max-w-3xl p-6 sm:p-8 rounded-2xl shadow-2xl transition-all duration-300">
-        <div class="text-center mb-4">
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-800">🎯 Quiz de Boas-Vindas 🎯</h1>
-            <p class="text-sm text-gray-500 mt-2">Curso: Conhecimentos Básicos para Gestão do PDDE</p>
+    <!-- Game Introduction Container -->
+    <div id="introduction-container" class="bg-white/90 backdrop-blur-lg w-full max-w-3xl p-8 sm:p-12 rounded-2xl shadow-2xl text-center">
+        
+        <!-- Game Title -->
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800">
+            🎯 Missão 1: O Planejamento é a Chave do Sucesso!
+        </h1>
+        
+        <hr class="my-6 border-gray-300">
+
+        <!-- Module Information -->
+        <div class="bg-gray-50 p-6 rounded-lg text-left shadow-inner">
+            <h3 class="text-lg font-bold text-indigo-700">🔁 Organizando a Casa</h3>
+            <p class="text-md text-gray-600 mt-2"><span class="font-semibold">Conteúdo Principal:</span> Uma introdução essencial ao PDDE e ao papel fundamental do novo gestor.</p>
+            <p class="text-md text-gray-600 mt-1"><span class="font-semibold">Desafio:</span> Teste seus conhecimentos com o "Quiz de Boas-Vindas"!</p>
+        </div>
+
+        <!-- Start Button -->
+        <div class="mt-8">
+            <button id="start-quiz-btn" class="inline-block w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold text-xl py-4 px-10 rounded-lg shadow-xl hover:scale-105 transform transition-transform duration-300 ease-in-out">
+                Começar Desafio!
+            </button>
+        </div>
+    </div>
+
+    <!-- Quiz Container (Initially Hidden) -->
+    <div id="quiz-container" class="hidden bg-white/90 backdrop-blur-lg w-full max-w-4xl p-6 sm:p-10 rounded-2xl shadow-2xl transition-all duration-300 card-bg">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-800 main-text">🎯 Quiz de Boas-Vindas 🎯</h1>
+            <p class="text-base text-gray-500 mt-2 sub-text">Curso: Conhecimentos Básicos para Gestão do PDDE</p>
         </div>
 
         <!-- Progress Bar -->
-        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-6">
-            <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+        <div class="w-full bg-gray-200 rounded-full h-3 mb-8 progress-track">
+            <div id="progress-bar" class="bg-blue-600 h-3 rounded-full transition-all duration-500"></div>
         </div>
 
         <!-- Question Area -->
         <div id="question-area">
             <div class="flex justify-between items-center mb-4">
-                 <span id="question-counter" class="text-sm font-semibold text-gray-600"></span>
+                 <span id="question-counter" class="text-base font-semibold text-gray-600 sub-text"></span>
             </div>
-            <h2 class="text-lg font-bold text-gray-800 mb-6" id="question-text">Carregando pergunta...</h2>
-            <div id="options-container" class="grid grid-cols-1 gap-4">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-8 main-text" id="question-text">Carregando pergunta...</h2>
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Answer options will be dynamically inserted here -->
             </div>
             <!-- Explanation Area -->
-            <div id="explanation-container" class="mt-6"></div>
+            <div id="explanation-container" class="mt-8"></div>
         </div>
     </div>
 
     <!-- Results Container (Initially Hidden) -->
-    <div id="results-container" class="hidden bg-white w-full max-w-2xl p-8 text-center rounded-2xl shadow-2xl">
-        <h2 class="text-3xl font-bold text-gray-800 mb-4">Atividade Concluída!</h2>
-        <p class="text-lg text-gray-600 mb-6" id="score-text">Sua pontuação final é:</p>
-        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-5xl font-bold rounded-full w-36 h-36 flex items-center justify-center mx-auto mb-8 shadow-lg" id="final-score">
+    <div id="results-container" class="hidden bg-white/90 backdrop-blur-lg w-full max-w-3xl p-8 text-center rounded-2xl shadow-2xl card-bg">
+        <h2 class="text-4xl font-bold text-gray-800 mb-4 main-text">Atividade Concluída!</h2>
+        <p class="text-xl text-gray-600 mb-8 sub-text" id="score-text">Sua pontuação final é:</p>
+        <div class="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-6xl font-bold rounded-full w-40 h-40 flex items-center justify-center mx-auto mb-8 shadow-lg score-circle" id="final-score">
             10/10
         </div>
-        <p class="text-gray-500">Parabéns por finalizar o quiz! Continue seus estudos.</p>
+        <p class="text-gray-500 sub-text">Parabéns por finalizar o quiz! Continue seus estudos.</p>
     </div>
 
     <script>
@@ -197,6 +290,8 @@
         ];
 
         // --- DOM Element References ---
+        const introductionContainer = document.getElementById('introduction-container');
+        const startQuizBtn = document.getElementById('start-quiz-btn');
         const quizContainer = document.getElementById('quiz-container');
         const resultsContainer = document.getElementById('results-container');
         const questionTextEl = document.getElementById('question-text');
@@ -232,7 +327,7 @@
             currentQuestion.options.forEach((option, index) => {
                 const button = document.createElement('button');
                 button.innerHTML = `<span class="font-bold mr-3">${alternatives[index]})</span> ${option}`;
-                button.classList.add('w-full', 'text-left', 'p-4', 'rounded-lg', 'border-2', 'border-gray-200', 'bg-white', 'hover:bg-gray-100', 'hover:border-blue-300', 'transition-all', 'duration-200', 'shadow-sm');
+                button.classList.add('w-full', 'text-left', 'p-4', 'text-lg', 'rounded-lg', 'border-2', 'border-gray-200', 'bg-white', 'hover:bg-gray-100', 'hover:border-blue-300', 'transition-all', 'duration-200', 'shadow-sm', 'option-btn', 'main-text');
                 button.dataset.index = index;
                 button.addEventListener('click', selectAnswer);
                 optionsContainerEl.appendChild(button);
@@ -257,8 +352,8 @@
             const explanation = quizData[currentQuestionIndex].explanation;
             explanationContainerEl.innerHTML = `
                 <div class="explanation-box p-4 mt-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
-                    <h4 class="font-bold text-blue-800">Explicação:</h4>
-                    <p class="text-gray-700">${explanation}</p>
+                    <h4 class="font-bold text-blue-800 main-text">Explicação:</h4>
+                    <p class="text-gray-700 sub-text">${explanation}</p>
                 </div>
             `;
             
@@ -301,8 +396,43 @@
             }());
         }
 
+        // --- Accessibility Features ---
+        const bodyEl = document.body;
+        const rootEl = document.documentElement;
+        const toggleContrastBtn = document.getElementById('toggle-contrast-btn');
+        const increaseFontBtn = document.getElementById('increase-font-btn');
+        const decreaseFontBtn = document.getElementById('decrease-font-btn');
+
+        // 1. High Contrast Toggle
+        toggleContrastBtn.addEventListener('click', () => {
+            bodyEl.classList.toggle('high-contrast');
+        });
+
+        // 2. Font Size Adjustment
+        let currentFontSize = parseFloat(getComputedStyle(rootEl).fontSize);
+        
+        increaseFontBtn.addEventListener('click', () => {
+            // Set a reasonable maximum size
+            if (currentFontSize >= 22) return; 
+            currentFontSize += 2;
+            rootEl.style.fontSize = `${currentFontSize}px`;
+        });
+        
+        decreaseFontBtn.addEventListener('click', () => {
+            // Set a reasonable minimum size
+            if (currentFontSize <= 12) return; 
+            currentFontSize -= 2;
+            rootEl.style.fontSize = `${currentFontSize}px`;
+        });
+        
+        // --- Game Start Logic ---
+        startQuizBtn.addEventListener('click', () => {
+            introductionContainer.classList.add('hidden');
+            quizContainer.classList.remove('hidden');
+        });
+
         // --- Initial Load ---
-        loadQuestion();
+        loadQuestion(); // Pre-load the first question so it's ready
     </script>
 </body>
 </html>
